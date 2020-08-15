@@ -183,7 +183,13 @@ class ControladorFormularios{
 
 	static public function ctrActualizar(){ 
 
-			if(isset($_POST["usuarioEditar"])){   
+		if(isset($_POST["usuarioEditar"])){   
+
+			$consultaUsuario = ModeloFormularios::mdlConsultaTabla("usuarios", "token", $_POST["tokenEditar"]);//Validaciones para proceder con el borrado, seguridad contra ataques
+
+			$comparaToken = md5($consultaUsuario["email"]."+".$consultaUsuario["id"]."+".$consultaUsuario["fecha_registro"]);
+
+			if($comparaToken == $_POST["tokenEditar"]){
 
 				if($_POST["contrasenaEditar"] != ""){
 
@@ -207,7 +213,13 @@ class ControladorFormularios{
 
 				return $respuesta;
 
+			}else{
+
+				return "error";
+
 			}
+		
+		}
 
 	}
 
@@ -221,31 +233,37 @@ class ControladorFormularios{
 
 		if(isset($_POST["registroEliminar"])){
 
-			$tabla = "usuarios"; //debo poner el nombre de la tabla que genere en la base de datos
+			$consultaUsuario = ModeloFormularios::mdlConsultaTabla("usuarios", "token", $_POST["registroEliminar"]); //Validaciones para proceder con el borrado, seguridad contra ataques
 
-			$tokenBorrar = $_POST["registroEliminar"];
+			$comparaToken = md5($consultaUsuario["email"]."+".$consultaUsuario["id"]."+".$consultaUsuario["fecha_registro"]);
 
-			$respuesta = ModeloFormularios::mdlBorrarRegistro($tabla, $tokenBorrar);
+			if($comparaToken == $_POST["registroEliminar"]){
 
-			if($respuesta =="ok"){
+				$tabla = "usuarios"; //debo poner el nombre de la tabla que genere en la base de datos
 
-				$limpiar = new ControladorFormularios();
-				$limpiar -> ctrLimpiarMemNav();
+				$tokenBorrar = $_POST["registroEliminar"];
 
-				echo '<script>
-								setTimeout(function(){
+				$respuesta = ModeloFormularios::mdlBorrarRegistro($tabla, $tokenBorrar);
 
-								window.location = "index.php?action=usuario";
+				if($respuesta =="ok"){
 
-								},1);
+					$limpiar = new ControladorFormularios();
+					$limpiar -> ctrLimpiarMemNav();
 
-					   </script>';
+					echo '<script>
+									setTimeout(function(){
+
+									window.location = "index.php?action=usuario";
+
+									},1);
+
+						   </script>';
+
+				}
 
 			}
 
-
 		}
-
 
 	}
 
