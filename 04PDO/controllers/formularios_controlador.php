@@ -198,7 +198,7 @@ class ControladorFormularios{
 
 				$tabla = "usuarios"; //debo poner el nombre de la tabla que genere en la base de datos
 
-				$datos = array("id" => $_POST["idEditar"],
+				$datos = array("token" => $_POST["tokenEditar"],
 							   "usuario" => $_POST["usuarioEditar"],
 							   "password" => $password,
 							   "email" => $_POST["emailEditar"]); //los datos los voy a pasar con un array con propiedades y valores, tiene que ser los mismos titulos que en la base de datos
@@ -217,7 +217,7 @@ class ControladorFormularios{
 
 	public function ctrBorrarRegistro(){ 
 
-		//print_r($_POST["registroEliminar"]);
+		//echo '<pre>'; print_r($_POST["registroEliminar"]); echo '<pre>';//print_r($_POST["registroEliminar"]);
 
 		if(isset($_POST["registroEliminar"])){
 
