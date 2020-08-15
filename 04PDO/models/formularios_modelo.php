@@ -46,7 +46,7 @@ class ModeloFormularios{
 		
 		if ($columna == NULL && $valor == NULL){
 
-			$consulta = Conexion::conectar()->prepare("SELECT id, usuario, email, DATE_FORMAT(fecha_registro, '%d - %b - %Y') AS fecha_registro FROM $tabla ORDER BY id DESC");
+			$consulta = Conexion::conectar()->prepare("SELECT token, usuario, email, DATE_FORMAT(fecha_registro, '%d - %b - %Y') AS fecha_registro FROM $tabla ORDER BY id DESC");
 
 				if($consulta->execute()){//Este if execute se puede sacar
 
@@ -80,12 +80,12 @@ class ModeloFormularios{
 
 	//	Creo una variable llamada statement o decaracion para poder hacer un apreparacion de sentencia SQL
 
-		$stmt = Conexion::conectar()->prepare("UPDATE $tabla SET usuario=:usuario, password=:password, email=:email WHERE id=:id");  
+		$stmt = Conexion::conectar()->prepare("UPDATE $tabla SET usuario=:usuario, password=:password, email=:email WHERE token=:token");  
 
 		$stmt -> bindParam(":usuario", $datos["usuario"], PDO::PARAM_STR); //el tipo de dato es un string
 		$stmt -> bindParam(":password", $datos["password"], PDO::PARAM_STR);
 		$stmt -> bindParam(":email", $datos["email"], PDO::PARAM_STR);
-		$stmt -> bindParam(":id", $datos["id"], PDO::PARAM_INT);//En este caso el parametro es INT
+		$stmt -> bindParam(":token", $datos["token"], PDO::PARAM_STR);//En este caso el parametro es INT
 
 		if($stmt->execute()){
 
@@ -110,9 +110,9 @@ class ModeloFormularios{
 
 	//	Creo una variable llamada statement o decaracion para poder hacer un apreparacion de sentencia SQL
 
-		$stmt = Conexion::conectar()->prepare("DELETE FROM $tabla WHERE id= $datos");  
+		$stmt = Conexion::conectar()->prepare("DELETE FROM $tabla WHERE token = '$datos'");  //Cuidado con las comillas de los variables en este caso lo ejecuta por tomar el valor dentro de $datos como un literal si token = $datos NO FUNCIONA!!
 
-		$stmt -> bindParam(":id", $datos, PDO::PARAM_INT);//En este caso el parametro es INT
+		$stmt -> bindParam(":token", $datos, PDO::PARAM_STR);//En este caso el parametro es INT
 
 		if($stmt->execute()){
 
