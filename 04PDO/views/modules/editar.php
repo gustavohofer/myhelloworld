@@ -92,6 +92,25 @@
 
 					}
 
+					if($actualizar =="error"){
+
+					echo '<script>  
+
+									if ( window.history.replaceState ){
+
+										window.history.replaceState ( null, null, window.location.href );
+
+									}
+								 </script>';//Limpia la memoria del navegador					
+
+
+					//$limpiar = new ControladorFormularios();
+					//$limpiar -> ctrLimpiarMemNav();
+
+					echo '<div class="alert alert-danger">Error al actualizar el usuario</div>';
+
+					}
+
 				?>
 			
 
