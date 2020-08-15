@@ -1,10 +1,10 @@
 <?php
 
-	if(isset($_GET["id"])){
+	if(isset($_GET["token"])){
 
-		$columna = "id";
+		$columna = "token";
 
-		$valor = $_GET["id"];
+		$valor = $_GET["token"];
 
 		$usuario = ControladorFormularios::ctrConsultaTabla($columna, $valor);
 
@@ -47,7 +47,7 @@
 						<input type="hidden" name="contrasenaActual" value= "<?php echo $usuario["password"]; ?>"> <!--LA CONTRASENA LA PASAMOS POR OTRO INPUT DE TIPO HIDDEN LUEGO HAY QUE ENCRIPTARLA-->
 					</div>
 					<div class="input-group-prepend"> <!-- Debo enviar el ID para poder hacer la busqueda en la DB-->
-						<input type="hidden" name="idEditar" value= "<?php echo $usuario["id"]; ?>">
+						<input type="hidden" name="tokenEditar" value= "<?php echo $usuario["token"]; ?>">
 					</div>
 				</div>
 				
