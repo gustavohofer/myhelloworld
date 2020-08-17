@@ -80,11 +80,11 @@ class ModeloFormularios{
 
 	//	Creo una variable llamada statement o decaracion para poder hacer un apreparacion de sentencia SQL
 
-		$stmt = Conexion::conectar()->prepare("UPDATE $tabla SET usuario=:usuario, password=:password, email=:email WHERE token=:token");  
+		$stmt = Conexion::conectar()->prepare("UPDATE $tabla SET usuario=:usuario, password=:password/*, email=:email*/  WHERE token=:token");  
 
 		$stmt -> bindParam(":usuario", $datos["usuario"], PDO::PARAM_STR); //el tipo de dato es un string
-		$stmt -> bindParam(":password", $datos["password"], PDO::PARAM_STR);
-		$stmt -> bindParam(":email", $datos["email"], PDO::PARAM_STR);
+		$stmt -> bindParam(":password", $datos["password"], PDO::PARAM_STR);//usando esta sentencia nos aseguramos que que no se hagan SQL injections es decir que se pase un codigo para ejecutar ya que PDO establece que es una cadena de caracteres
+		/*$stmt -> bindParam(":email", $datos["email"], PDO::PARAM_STR);*/
 		$stmt -> bindParam(":token", $datos["token"], PDO::PARAM_STR);//En este caso el parametro es INT
 
 		if($stmt->execute()){
@@ -140,7 +140,7 @@ class ModeloFormularios{
 
 		$consulta = ModeloFormularios::mdlConsultaTabla($tabla, $columna, $email);
 
-		$token =  md5($consulta["email"]."+".$consulta["id"]."+".$consulta["fecha_registro"]);
+		$token =  md5($consulta["email"]."+".$consulta["id"]."+".$consulta["fecha_registro"]);//soca el mail para evitar error de tokencre
 
 		//echo '<pre>'; print_r($token); echo '<pre>';
 
@@ -155,7 +155,38 @@ class ModeloFormularios{
 		};
 
 		//}
-	} 
+	}
+
+	////////////////////////////////////
+	// ACTUALIZAR INTENTOS FALLIDOS
+	////////////////////////////////////
+
+	static public function mdlActualizarIntFalla ($tabla, $valor, $token){
+
+	//	Creo una variable llamada statement o decaracion para poder hacer un apreparacion de sentencia SQL
+
+		$stmt = Conexion::conectar()->prepare("UPDATE $tabla SET intentos_fallidos=:intentos_fallidos WHERE token=:token");  
+
+		$stmt -> bindParam(":intentos_fallidos", $valor, PDO::PARAM_INT); //el tipo de dato es un string
+		$stmt -> bindParam(":token", $token, PDO::PARAM_STR);//En este caso el parametro es INT
+
+		if($stmt->execute()){
+
+			return "ok";
+
+		}else{
+
+			print_r(Conexion::conectar()->errorInfo());
+
+		}
+
+		$stmt -> close(); //si llegase a haber un error en la conexion por buena practica corresponde cerrar la conexion a la DB
+
+		$stmt = NULL; // vacio la informacion que haya quedado en la variable
+
+
+		
+	}
 
 
 //ALTERNATIVA LLAMAR UN METODO DISTINTO
@@ -174,4 +205,3 @@ class ModeloFormularios{
 
 }
 //si el archivo es solo PHP se recominda dejar abierto para evitar que alguien pueda agregar codigo malicioso
-?>
