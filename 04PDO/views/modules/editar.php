@@ -33,13 +33,13 @@
 						<input type="text" class="form-control" id="usuario" value= "<?php echo $usuario["usuario"]; ?>" placeholder="Actualizar nombre" name="usuarioEditar">
 					</div>
 				</div>				
-				<div class="form-group text-left">
+				<!--<div class="form-group text-left">
 					<div class="input-group-prepend">
 						<span class="input-group-text"><i class="fas fa-envelope"></i></span>
 						<input type="email" class="form-control" id="email" value= "<?php echo $usuario["email"]; ?>"placeholder="Actualizar email" name="emailEditar">
 					</div>
 					
-				</div>
+				</div>-->
 				<div class="form-group text-left">
 					<div class="input-group-prepend">
 						<span class="input-group-text"><i class="fas fa-key"></i></span>
