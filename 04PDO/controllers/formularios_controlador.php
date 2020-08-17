@@ -17,13 +17,23 @@ class ControladorFormularios{
 
 				$tabla = "usuarios"; //debo poner el nombre de la tabla que genere en la base de datos
 
+				$encriptarPass = crypt($_POST["contrasenaRegistro"], '$2a$07$Milanesa.Napolitana.con.Papas.Fritas$');
+
 				$datos = array("usuario" => $_POST["nombreRegistro"],
-							   "password" => $_POST["contrasenaRegistro"],
+							   "password" => $encriptarPass,
 							   "email" => $_POST["emailRegistro"]); //los datos los voy a pasar con un array con propiedades y valores, tiene que ser los mismos titulos que en la base de datos
 
-				$respuesta = ModeloFormularios::mdlRegistro($tabla, $datos);
+				if(ModeloFormularios::mdlConsultaTabla($tabla, "email", $_POST["emailRegistro"]) == ""){
 
-				return $respuesta;
+					$respuesta = ModeloFormularios::mdlRegistro($tabla, $datos);
+
+					return $respuesta;
+
+				}else{
+
+				$respuesta = "error1";
+
+				return $respuesta;};
 
 				//echo $_POST["nombreRegistro"]."<br>".$_POST["emailRegistro"]."<br>".$_POST["contrasenaRegistro"];
 
@@ -89,7 +99,9 @@ class ControladorFormularios{
 
 				$ingreso = ModeloFormularios::mdlConsultaTabla($tabla, $columna, $emaillogin);
 
-				if ($ingreso["email"] == $_POST["emailIngreso"] && $ingreso["password"] == $_POST["contrasenaIngreso"]){
+				if ($ingreso["email"] == $_POST["emailIngreso"] && $ingreso["password"] == crypt($_POST["contrasenaIngreso"], '$2a$07$Milanesa.Napolitana.con.Papas.Fritas$')){
+
+						ModeloFormularios::mdlActualizarIntFalla($tabla, "0", $ingreso["token"]);
 
 						$_SESSION["validarIngreso"] = "ok";  //Varables de tipo sesion sirven para manejo de sesiones e ingreso al sistema
 
@@ -99,6 +111,18 @@ class ControladorFormularios{
 						echo '<script>window.location =  "index.php?action=usuario"</script>';
 
 				}else{
+
+					if($ingreso["intentos_fallidos"]<2){
+
+						$intFallidos = $ingreso["intentos_fallidos"]+1;
+
+						ModeloFormularios::mdlActualizarIntFalla($tabla, $intFallidos, $ingreso["token"]);
+
+					}else{
+
+						echo '<br> <div class="alert alert-warning">No soy un Robot: ReCaptcha</div>';//Google Recaptcha se integra una vex que esta subido a un servidor
+
+					}
 
 					$limpiar = new ControladorFormularios();
 					$limpiar -> ctrLimpiarMemNav();
@@ -185,40 +209,57 @@ class ControladorFormularios{
 
 		if(isset($_POST["usuarioEditar"])){   
 
-			$consultaUsuario = ModeloFormularios::mdlConsultaTabla("usuarios", "token", $_POST["tokenEditar"]);//Validaciones para proceder con el borrado, seguridad contra ataques
+			if(preg_match('/^[a-zA-ZñÑáéíóú ÁÉÍÓÚ]+$/', $_POST["usuarioEditar"]) /*&& 
+			   preg_match('/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,})$/i', $_POST["emailEditar"])*/){
 
-			$comparaToken = md5($consultaUsuario["email"]."+".$consultaUsuario["id"]."+".$consultaUsuario["fecha_registro"]);
+				$consultaUsuario = ModeloFormularios::mdlConsultaTabla("usuarios", "token", $_POST["tokenEditar"]);
 
-			if($comparaToken == $_POST["tokenEditar"]){
+				$comparaToken = md5($consultaUsuario["email"]."+".$consultaUsuario["id"]."+".$consultaUsuario["fecha_registro"]);
 
-				if($_POST["contrasenaEditar"] != ""){
+				if($comparaToken == $_POST["tokenEditar"]){
 
-					$password = $_POST["contrasenaEditar"];
+					if($_POST["contrasenaEditar"] != ""){
+
+						 if(preg_match('/^[a-zA-Z0-9]+$/', $_POST["contrasenaEditar"])){
+
+							$password = crypt($_POST["contrasenaEditar"], '$2a$07$Milanesa.Napolitana.con.Papas.Fritas$');
+
+						}else{
+
+							return "error";
+
+						}
+
+					}else{
+
+						$password = $_POST["contrasenaActual"];
+
+					}
+
+
+					$tabla = "usuarios"; //debo poner el nombre de la tabla que genere en la base de datos
+
+					$datos = array("token" => $_POST["tokenEditar"],
+								   "usuario" => $_POST["usuarioEditar"],
+								   "password" => $password/*,
+								   "email" => $_POST["emailEditar"]*/); //los datos los voy a pasar con un array con propiedades y valores, tiene que ser los mismos titulos que en la base de datos
+
+					$respuesta = ModeloFormularios::mdlEditar($tabla, $datos, NULL);
+
+					return $respuesta;
 
 				}else{
 
-					$password = $_POST["contrasenaActual"];
+					return "error";
 
 				}
-
-
-				$tabla = "usuarios"; //debo poner el nombre de la tabla que genere en la base de datos
-
-				$datos = array("token" => $_POST["tokenEditar"],
-							   "usuario" => $_POST["usuarioEditar"],
-							   "password" => $password,
-							   "email" => $_POST["emailEditar"]); //los datos los voy a pasar con un array con propiedades y valores, tiene que ser los mismos titulos que en la base de datos
-
-				$respuesta = ModeloFormularios::mdlEditar($tabla, $datos, NULL);
-
-				return $respuesta;
-
+		
 			}else{
 
-				return "error";
+					return "error";
 
 			}
-		
+
 		}
 
 	}
@@ -233,7 +274,7 @@ class ControladorFormularios{
 
 		if(isset($_POST["registroEliminar"])){
 
-			$consultaUsuario = ModeloFormularios::mdlConsultaTabla("usuarios", "token", $_POST["registroEliminar"]); //Validaciones para proceder con el borrado, seguridad contra ataques
+			$consultaUsuario = ModeloFormularios::mdlConsultaTabla("usuarios", "token", $_POST["registroEliminar"]); //Validaciones
 
 			$comparaToken = md5($consultaUsuario["email"]."+".$consultaUsuario["id"]."+".$consultaUsuario["fecha_registro"]);
 
@@ -270,4 +311,3 @@ class ControladorFormularios{
 
 }
 
-?>
