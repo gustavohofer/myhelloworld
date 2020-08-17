@@ -75,6 +75,16 @@
 
 							//Creo con un HTML para confirmar e registro
 							echo '<div class="alert alert-success">El usuario ha sido registrado</div>';
+
+							echo '<script>
+									setTimeout(function(){
+
+									window.location = "index.php";
+
+									},50);
+
+						   </script>';
+
 					}
 
 					if ($registro == "error"){
@@ -83,6 +93,15 @@
 						$ingreso -> ctrIngresoSistema();
 
 						echo '<div class="alert alert-danger">Error no se premiten caracteres especiales</div>';
+
+					};
+
+					if ($registro == "error1"){
+
+						$ingreso = new ControladorFormularios();
+						$ingreso -> ctrIngresoSistema();
+
+						echo '<div class="alert alert-danger">Error el usuario ya esta registrado</div>';
 
 					};
 
